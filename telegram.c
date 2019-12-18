@@ -19,7 +19,7 @@ static void (*update_callback)(telegram_parsed_msg_t *msg) = NULL;
 
 void telegram_set_update_callback (void (*callback) (telegram_parsed_msg_t *msg))
 {
-	update_callback = callback;
+    update_callback = callback;
 }
 
 void telegram_set_bot_token (char *bot_token)
@@ -30,7 +30,7 @@ void telegram_set_bot_token (char *bot_token)
 
 const char *telegram_get_bot_token (void)
 {
-	return telegram_bot_token;
+    return telegram_bot_token;
 }
 
 int telegram_send_response (const char *link, char **answer)
@@ -51,8 +51,8 @@ int telegram_send_response (const char *link, char **answer)
     err = esp_http_client_open(client, 0);
     if (err != ESP_OK)
     {
-       ESP_LOGE(__func__, "Failed to open HTTP connection: %s", esp_err_to_name(err));
-       goto err_exit;
+        ESP_LOGE(__func__, "Failed to open HTTP connection: %s", esp_err_to_name(err));
+        goto err_exit;
     }
     content_lenght =  esp_http_client_fetch_headers(client);
     status_code = esp_http_client_get_status_code(client);
@@ -100,10 +100,10 @@ int telegram_get_update (char **answer, const size_t offset)
 {
     static char telegram_update_url[128] = {0};
     snprintf(telegram_update_url, sizeof(telegram_update_url) - 1, "%s/bot%s/%s?limit=1&offset=%u",
-            TELEGRAM_API_URL,
-            telegram_bot_token,
-            TELEGRAM_METHOD_GET_UPDATES,
-            offset);
+             TELEGRAM_API_URL,
+             telegram_bot_token,
+             TELEGRAM_METHOD_GET_UPDATES,
+             offset);
     return telegram_send_response(telegram_update_url, answer);
 }
 
@@ -131,7 +131,8 @@ int telebot_check_updates (void)
     static size_t offset = 0;
 
     ret_val = telegram_get_update(&answer, offset);
-    if(ret_val != 0) {
+    if(ret_val != 0)
+    {
         ESP_LOGE(__func__, "Got error on telegram_send_request");
         goto err_exit; //TODO
     }
@@ -184,14 +185,14 @@ void telegram_bot_start (unsigned int _poling_time)
     }
     xTaskCreate(telegram_bot_loop,
                 "telegram_bot_loop",
-                 1024 * 8,
-                 NULL,
-                 1,
-                 NULL);
+                1024 * 8,
+                NULL,
+                1,
+                NULL);
 }
 
 void telegram_bot_stop(void)
 {
-	atomic_exchange(&bot_running, false);
+    atomic_exchange(&bot_running, false);
 }
 

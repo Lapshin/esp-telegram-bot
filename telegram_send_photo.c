@@ -22,10 +22,10 @@ static int send_multipart_chunk(esp_http_client_handle_t client, unsigned char s
     int res;
     char buff[256];
     len += sprintf(buff, "\r\n--%s\r\nContent-Disposition: form-data; name=%s%s%s\r\n\r\n",
-            BOUNDARY,
-            name,
-            cont_type == NULL ? "" : "\r\nContent-Type:",
-            cont_type == NULL ? "" : cont_type);
+                   BOUNDARY,
+                   name,
+                   cont_type == NULL ? "" : "\r\nContent-Type:",
+                   cont_type == NULL ? "" : cont_type);
     if (send != 0)
     {
         res = esp_http_client_write(client, buff, strlen(buff));
@@ -57,12 +57,12 @@ static int send_multipart_end(esp_http_client_handle_t client, unsigned char sen
 void telegram_send_photo(const size_t chat_id, const char *image, const size_t image_length)
 {
     size_t cont_len = 0;
-    char chat_id_str[32] ={0};
+    char chat_id_str[32] = {0};
     char telegram_photo_url[128] = {0};
     sprintf(telegram_photo_url, "%s/bot%s/%s",
-                TELEGRAM_API_URL,
-                telegram_get_bot_token(),
-                TELEGRAM_METHOD_SEND_PHOTO);
+            TELEGRAM_API_URL,
+            telegram_get_bot_token(),
+            TELEGRAM_METHOD_SEND_PHOTO);
     esp_err_t err = ESP_OK;
     esp_http_client_config_t config = {0};
     config.url = telegram_photo_url;
@@ -85,11 +85,14 @@ void telegram_send_photo(const size_t chat_id, const char *image, const size_t i
     cont_len += send_multipart_chunk(client, 1, "photo; filename=1.jpeg", "image/jpeg", image, image_length);
     cont_len += send_multipart_end(client, 1);
     err = esp_http_client_perform(client);
-    if (err == ESP_OK) {
+    if (err == ESP_OK)
+    {
         ESP_LOGI(__FUNCTION__, "HTTP POST Status = %d, content_length = %d",
-                esp_http_client_get_status_code(client),
-                esp_http_client_get_content_length(client));
-    } else {
+                 esp_http_client_get_status_code(client),
+                 esp_http_client_get_content_length(client));
+    }
+    else
+    {
         ESP_LOGE(__FUNCTION__, "HTTP POST request failed: %s", esp_err_to_name(err));
     }
     size_t content_lenght = esp_http_client_get_content_length(client);

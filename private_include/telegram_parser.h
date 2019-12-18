@@ -15,10 +15,11 @@
 
 #define IS_JSON_KEY(x) (strncmp((x), key, key_lenght) == 0 && i++)
 
-typedef struct {
-	const char *json;
-	jsmntok_t *t;
-	int r;
+typedef struct
+{
+    const char *json;
+    jsmntok_t *t;
+    int r;
 } json_parser_t;
 
 int parse_updates_message(const char *json, telegram_parsed_msg_t *message);
