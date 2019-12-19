@@ -17,23 +17,23 @@ atomic_bool bot_running = ATOMIC_VAR_INIT(false);
 static char telegram_bot_token[TELEGRAM_BOT_TOKEN_SIZE] = {0};
 static void (*update_callback)(telegram_parsed_msg_t *msg) = NULL;
 
-void telegram_set_update_callback (void (*callback) (telegram_parsed_msg_t *msg))
+void telegram_set_update_callback(void (*callback) (telegram_parsed_msg_t *msg))
 {
     update_callback = callback;
 }
 
-void telegram_set_bot_token (char *bot_token)
+void telegram_set_bot_token(char *bot_token)
 {
     memset(telegram_bot_token, 0x00, sizeof(telegram_bot_token));
     strcpy(telegram_bot_token, bot_token);
 }
 
-const char *telegram_get_bot_token (void)
+const char *telegram_get_bot_token(void)
 {
     return telegram_bot_token;
 }
 
-int telegram_send_response (const char *link, char **answer)
+int telegram_send_response(const char *link, char **answer)
 {
     int ret_code = 0;
     int content_lenght = -1;
@@ -96,7 +96,7 @@ exit:
     return ret_code;
 }
 
-int telegram_get_update (char **answer, const size_t offset)
+int telegram_get_update(char **answer, const size_t offset)
 {
     static char telegram_update_url[128] = {0};
     snprintf(telegram_update_url, sizeof(telegram_update_url) - 1, "%s/bot%s/%s?limit=1&offset=%u",
@@ -123,7 +123,7 @@ static void character_replace(char *str, char in, char out)
     }
 }
 
-int telebot_check_updates (void)
+int telebot_check_updates(void)
 {
     char *answer = NULL;
     int ret = -1, ret_val;
@@ -161,7 +161,7 @@ err_exit:
     return ret;
 }
 
-void telegram_bot_loop (void *param)
+void telegram_bot_loop(void *param)
 {
     while (atomic_load(&bot_running))
     {
@@ -170,7 +170,12 @@ void telegram_bot_loop (void *param)
     }
 }
 
-void telegram_bot_start (unsigned int _poling_time)
+void telegram_bot_set_polling_time(unsigned int _poling_time)
+{
+    atomic_exchange(&polling_time, _poling_time);
+}
+
+void telegram_bot_start(unsigned int _poling_time)
 {
     bool compare = false;
     if (update_callback == NULL)
@@ -183,6 +188,7 @@ void telegram_bot_start (unsigned int _poling_time)
         ESP_LOGE(__func__, "Bot is already running");
         return;
     }
+    telegram_bot_set_polling_time(_poling_time);
     xTaskCreate(telegram_bot_loop,
                 "telegram_bot_loop",
                 1024 * 8,

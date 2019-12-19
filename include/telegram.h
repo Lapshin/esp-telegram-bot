@@ -55,6 +55,7 @@ void telegram_bot_start(unsigned int _poling_time);;
 void telegram_bot_stop(void);
 void telegram_set_bot_token(char *bot_token);
 const char *telegram_get_bot_token(void);
-int telegram_send_response (const char *link, char **answer);
+int telegram_send_response(const char *link, char **answer);
+void telegram_bot_set_polling_time(unsigned int _poling_time);
 
 #endif /* MAIN_TELEGRAM_H_ */
