@@ -33,6 +33,21 @@ const char *telegram_get_bot_token(void)
     return telegram_bot_token;
 }
 
+static void free_message(telegram_parsed_msg_t *msg)
+{
+    if (msg == NULL)
+    {
+        return;
+    }
+    if (msg->message != NULL)
+    {
+        free(msg->message->text);
+        free(msg->message->document);
+        free(msg->message);
+    }
+    free(msg->file);
+}
+
 int telegram_send_response(const char *link, char **answer)
 {
     int ret_code = 0;
@@ -107,23 +122,7 @@ int telegram_get_update(char **answer, const size_t offset)
     return telegram_send_response(telegram_update_url, answer);
 }
 
-static void character_replace(char *str, char in, char out)
-{
-    if (str == NULL)
-    {
-        return;
-    }
-    for(; *str != '\0'; str++)
-    {
-        if(*str != in)
-        {
-            continue;
-        }
-        *str = out;
-    }
-}
-
-int telebot_check_updates(void)
+int telebot_check_updates(bool parse)
 {
     char *answer = NULL;
     int ret = -1, ret_val;
@@ -136,38 +135,40 @@ int telebot_check_updates(void)
         ESP_LOGE(__func__, "Got error on telegram_send_request");
         goto err_exit; //TODO
     }
-    character_replace(answer, '\n', ' ');
-    ESP_LOGD(__func__,"%s\n", answer);
-    ret_val = parse_updates_message(answer, &msg);
-    if (ret_val != 0)
+    ESP_LOGI(__func__,"%s\n", answer);
+    if (parse == true)
     {
-        ESP_LOGE(__func__, "Parsing error");
-        goto err_exit; //TODO
+        ret_val = parse_updates_message(answer, &msg);
+        if (ret_val != 0)
+        {
+            ESP_LOGE(__func__, "Parsing error");
+            goto err_exit; //TODO
+        }
+        update_callback(&msg);
     }
-
-    update_callback(&msg);
-
     offset = msg.update_id + 1;
 
 err_exit:
-    if (msg.message != NULL)
-    {
-        free(msg.message->text);
-        free(msg.message->document);
-        free(msg.message);
-    }
+    free_message(&msg);
     free(answer);
     answer = NULL;
     return ret;
+}
+
+int telegram_increase_offset(void)
+{
+    return telebot_check_updates(false);
 }
 
 void telegram_bot_loop(void *param)
 {
     while (atomic_load(&bot_running))
     {
-        telebot_check_updates();
+    	telebot_check_updates(true);
         sleep(atomic_load(&polling_time));
     }
+    ESP_LOGI(__func__, "Telegram bot stopped");
+    vTaskDelete(NULL);
 }
 
 void telegram_bot_set_polling_time(unsigned int _poling_time)
@@ -199,6 +200,40 @@ void telegram_bot_start(unsigned int _poling_time)
 
 void telegram_bot_stop(void)
 {
+    ESP_LOGI(__func__, "Got bot stop signal");
     atomic_exchange(&bot_running, false);
+}
+
+int telegram_set_file_url(char *url, size_t url_lenght, char *file_id)
+{
+    int ret_val = SUCCESS;
+    telegram_parsed_msg_t msg = {0};
+    static char telegram_update_url[128] = {0};
+    char *answer = NULL;
+    snprintf(telegram_update_url, sizeof(telegram_update_url) - 1, "%s/bot%s/%s?file_id=%s",
+             TELEGRAM_API_URL,
+             telegram_bot_token,
+             TELEGRAM_METHOD_GET_FILE,
+             file_id);
+    ret_val = telegram_send_response(telegram_update_url, &answer);
+    if(ret_val != SUCCESS)
+    {
+        ESP_LOGE(__func__, "Got error on telegram_send_request");
+        goto err_exit; //TODO
+    }
+    ESP_LOGD(__func__, "answer %s", answer);
+    ret_val = parse_updates_message(answer, &msg);
+    if (ret_val != 0)
+    {
+        ESP_LOGE(__func__, "Parsing error");
+        goto err_exit; //TODO
+    }
+    snprintf(url, url_lenght, "%s/file/bot%s/%s",
+             TELEGRAM_API_URL,
+             telegram_bot_token,
+             msg.file->file_path);
+err_exit:
+    free_message(&msg);
+    return ret_val;
 }
 

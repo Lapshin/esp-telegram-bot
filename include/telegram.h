@@ -30,10 +30,17 @@ typedef struct message_from_s
 
 typedef struct document_s
 {
-    char file_name[256];
     char file_id[256];
+    char file_name[256];
     size_t size;
 } document_t;
+
+typedef struct file_s
+{
+    char file_id[256];
+    char file_path[256];
+    size_t size;
+} file_t;
 
 typedef struct message_s
 {
@@ -48,6 +55,7 @@ typedef struct telegram_parsed_msg_s
 {
     int update_id;
     message_t *message;
+    file_t *file;
 } telegram_parsed_msg_t;
 
 void telegram_set_update_callback(void (*callback) (telegram_parsed_msg_t *msg));
@@ -57,5 +65,7 @@ void telegram_set_bot_token(char *bot_token);
 const char *telegram_get_bot_token(void);
 int telegram_send_response(const char *link, char **answer);
 void telegram_bot_set_polling_time(unsigned int _poling_time);
+int telegram_set_file_url(char *url, size_t url_lenght, char *file_id);
+int telegram_increase_offset(void);
 
 #endif /* MAIN_TELEGRAM_H_ */

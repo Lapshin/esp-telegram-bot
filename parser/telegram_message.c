@@ -36,6 +36,11 @@ int json_parse_telegram_message_callback (json_parser_t *parser, int i, void *da
         msg->text = calloc(text_size, 1);
         result = json_parse_string(msg->text, text_size, parser, i);
     }
+    else if (IS_JSON_KEY("document"))
+    {
+        msg->document = calloc(sizeof(*(msg->document)), 1);
+        json_parse_core(parser, i, msg->document, json_parse_telegram_message_document_callback);
+    }
     else
     {
         ESP_LOGE(__func__, "Unknown field \"%.*s\"", key_lenght, key);

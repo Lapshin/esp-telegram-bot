@@ -22,7 +22,7 @@ typedef struct
     int r;
 } json_parser_t;
 
-int parse_updates_message(const char *json, telegram_parsed_msg_t *message);
+int parse_updates_message(char *json, telegram_parsed_msg_t *message);
 
 int json_parse_core (json_parser_t *parser, int index, void *data, int (*callback)(json_parser_t *parser, int index, void *data));
 int compare_json_value (const char *str, const char *json, jsmntok_t *t, int i);

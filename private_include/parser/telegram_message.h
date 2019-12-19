@@ -10,6 +10,7 @@
 
 #include "../telegram_parser.h"
 #include "parser/telegram_message_from.h"
+#include "parser/telegram_message_document.h"
 
 int json_parse_telegram_message_callback(json_parser_t *parser, int i, void *data);
 
