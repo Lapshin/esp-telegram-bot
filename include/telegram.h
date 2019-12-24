@@ -59,7 +59,7 @@ typedef struct telegram_parsed_msg_s
 } telegram_parsed_msg_t;
 
 void telegram_set_update_callback(void (*callback) (telegram_parsed_msg_t *msg));
-void telegram_bot_start(unsigned int _poling_time);;
+void telegram_bot_start(void);
 void telegram_bot_stop(void);
 void telegram_set_bot_token(char *bot_token);
 const char *telegram_get_bot_token(void);

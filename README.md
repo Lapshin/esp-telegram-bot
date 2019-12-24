@@ -41,6 +41,7 @@ void callback(telegram_parsed_msg_t *msg)
 /* Bot initialization and start */ 
     telegram_set_bot_token(TELEGRAM_BOT_TOKEN);
     telegram_set_update_callback(&callback);
-    telegram_bot_start(TELEGRAM_POLLING_TIMEOUT);
+    // telegram_bot_set_polling_time(TELEGRAM_POLLING_TIMEOUT); // default is 5
+    telegram_bot_start();
 
 ```

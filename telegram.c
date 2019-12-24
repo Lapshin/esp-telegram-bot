@@ -176,7 +176,7 @@ void telegram_bot_set_polling_time(unsigned int _poling_time)
     atomic_exchange(&polling_time, _poling_time);
 }
 
-void telegram_bot_start(unsigned int _poling_time)
+void telegram_bot_start(void)
 {
     bool compare = false;
     if (update_callback == NULL)
@@ -189,7 +189,6 @@ void telegram_bot_start(unsigned int _poling_time)
         ESP_LOGE(__func__, "Bot is already running");
         return;
     }
-    telegram_bot_set_polling_time(_poling_time);
     xTaskCreate(telegram_bot_loop,
                 "telegram_bot_loop",
                 1024 * 8,
