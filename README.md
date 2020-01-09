@@ -1,9 +1,9 @@
-#Build
+# Build
 
 * `git clone` into your esp-idf/components
 * `./idf.py menuconfig` --->  `Component config` ---> `jsmn` ---> `Enable parent links`
 
-#Example echo request
+# Example echo request
 
 ```
 #include "telegram.h"
